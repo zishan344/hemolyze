@@ -1,4 +1,4 @@
-from rest_framework import serializers
+from rest_framework import serializers,permissions
 from django.contrib.auth.models import User
 from .models import UserDetails
 
@@ -25,12 +25,22 @@ class UserDetailsSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     """Serializer for the User model including related UserDetails."""
     userdetails = UserDetailsSerializer(required=False, allow_null=True)
+    permission_classes = [permissions.IsAuthenticated]
 
     class Meta:
         """Meta class to specify model and fields for serialization."""
         model = User
         fields = ['id', 'username', 'email', 'first_name', 'last_name', 'userdetails']
-
+      
+    def destroy(self, instance):
+        """Delete user if user has permission. UserDetails will be deleted automatically via CASCADE."""
+        if self.context['request'].user.has_permission('user.delete_user'):
+            try:
+                instance.delete()
+                return True
+            except Exception as e:
+                raise serializers.ValidationError(f"Error deleting user: {str(e)}")
+        raise serializers.ValidationError("You don't have permission to delete this user.")
     def to_representation(self, instance):
         """Custom representation to handle null userdetails."""
         ret = super().to_representation(instance)
@@ -66,3 +76,12 @@ class UserSerializer(serializers.ModelSerializer):
                 userdetails.save()
 
         return instance
+
+class CustomUserDeleteSerializer(serializers.Serializer):
+    """
+    Custom serializer for user deletion that doesn't require current_password
+    """
+    
+    def save(self, **kwargs):
+        user = self.context['request'].user
+        user.delete()

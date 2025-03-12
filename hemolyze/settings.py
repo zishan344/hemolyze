@@ -1,4 +1,3 @@
-
 from pathlib import Path
 from decouple import config
 from datetime import timedelta
@@ -152,7 +151,7 @@ DJOSER = {
         'user_create': 'user.serializers.UserCreateSerializer',
         'user': 'user.serializers.UserSerializer',
         'current_user': 'user.serializers.UserSerializer',
-        'user_delete': 'djoser.serializers.UserDeleteSerializer',
+        'user_delete': 'user.serializers.CustomUserDeleteSerializer',
     },
     'PERMISSIONS': {
         'user_delete': ['rest_framework.permissions.IsAuthenticated'],
@@ -163,11 +162,12 @@ DJOSER = {
     'PASSWORD_CHANGED_EMAIL_CONFIRMATION': True,
     'LOGOUT_ON_PASSWORD_CHANGE': False,
 }
+
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = config('EMAIL_HOST') 
 EMAIL_USE_TLS = config('EMAIL_USE_TLS',cast=bool) 
 EMAIL_PORT = config('EMAIL_PORT',cast=int)
 EMAIL_HOST_USER = config('EMAIL_HOST_USER') 
-EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD') 
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
 
