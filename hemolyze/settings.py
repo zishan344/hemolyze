@@ -125,7 +125,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 STATIC_URL = 'static/'
-
+AUTH_USER_MODEL ='user.CustomUser'
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
@@ -151,16 +151,7 @@ DJOSER = {
         'user_create': 'user.serializers.UserCreateSerializer',
         'user': 'user.serializers.UserSerializer',
         'current_user': 'user.serializers.UserSerializer',
-        'user_delete': 'user.serializers.CustomUserDeleteSerializer',
-    },
-    'PERMISSIONS': {
-        'user_delete': ['rest_framework.permissions.IsAuthenticated'],
-        'user': ['rest_framework.permissions.IsAuthenticated'],
-        'user_list': ['rest_framework.permissions.IsAuthenticated'],
-    },
-    'SEND_CONFIRMATION_EMAIL': True,
-    'PASSWORD_CHANGED_EMAIL_CONFIRMATION': True,
-    'LOGOUT_ON_PASSWORD_CHANGE': False,
+    }
 }
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
