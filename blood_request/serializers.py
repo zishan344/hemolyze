@@ -11,7 +11,7 @@ class AcceptBloodRequestSerializer(serializers.ModelSerializer):
   """ Serializer for AcceptBloodRequestSerializer model """
   class Meta:
     model = AcceptBloodRequest
-    fields = ['user','request_accept','request_user','status']
+    fields = ['user','request_accept','request_user','donation_status']
     extra_kwargs={'request_user':{'read_only':True}}
   
 

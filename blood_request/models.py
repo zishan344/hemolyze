@@ -38,7 +38,7 @@ class AcceptBloodRequest(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='accept_requests')
     request_accept = models.ForeignKey(BloodRequest, on_delete=models.CASCADE, related_name='accepted_by')
     request_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='received_requests')
-    status = models.CharField(max_length=10, choices=BLOOD_STATUS, default=PENDING)
+    donation_status = models.CharField(max_length=10, choices=BLOOD_STATUS, default=PENDING)
     date = models.DateTimeField(auto_now_add=True)
 
     def save(self, *args, **kwargs):
@@ -53,18 +53,18 @@ class AcceptBloodRequest(models.Model):
             donor=self.user,
             accept_request=self,
             defaults={
-                'status': ReceivedBlood.PENDING,
+                'received_status': ReceivedBlood.PENDING,
                 'donor': self.user 
             }
         )
         
         # Update ReceivedBlood status based on AcceptBloodRequest status
-        if self.status == self.DONATED:
-            received_blood.status = ReceivedBlood.RECEIVED
-        elif self.status == self.CANCELED:
-            received_blood.status = ReceivedBlood.CANCELED
+        if self.donation_status == self.DONATED:
+            received_blood.received_status = ReceivedBlood.RECEIVED
+        elif self.donation_status == self.CANCELED:
+            received_blood.received_status = ReceivedBlood.CANCELED
         else:
-            received_blood.status = ReceivedBlood.PENDING
+            received_blood.received_status = ReceivedBlood.PENDING
         received_blood.blood_post = self.request_accept
         received_blood.save()
 
@@ -89,10 +89,10 @@ class ReceivedBlood(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='recipient')
     donor = models.ForeignKey(User, on_delete=models.CASCADE, related_name='donor')
     accept_request = models.ForeignKey('AcceptBloodRequest', on_delete=models.CASCADE, related_name='received_blood')
-    status = models.CharField(max_length=10, choices=BLOOD_STATUS, default=PENDING)
+    received_status = models.CharField(max_length=10, choices=BLOOD_STATUS, default=PENDING)
     date = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Blood donation from {self.donor} to {self.user} - {self.status}"
+        return f"Blood donation from {self.donor} to {self.user} - {self.received_status}"
 
 
