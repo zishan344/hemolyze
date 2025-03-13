@@ -29,7 +29,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
                 self.groups.add(user_group)
     
     def __str__(self):
-        return self.username
+        return str(self.username) if self.username else str(self.email)
 
 class UserDetails(models.Model):
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='userdetails')
@@ -40,8 +40,9 @@ class UserDetails(models.Model):
     last_donation_date = models.DateField(blank=True, null=True)
     availability_status = models.BooleanField(default=False)
     
-    def __str__(self):
-        return f"{self.user.username}'s details"
+    def __str__(self) -> str:
+        user_identifier = str(self.user.username) if self.user.username else str(self.user.email)
+        return f"{user_identifier}'s details"
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)

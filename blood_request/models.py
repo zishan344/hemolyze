@@ -1,10 +1,10 @@
 from django.db import models
 from django.contrib.auth import get_user_model
-# Create your models here.
-user = get_user_model()
+
+User = get_user_model()  # Use capital 'U' for class names
 
 class BloodRequest(models.Model):
-    CHOICE_BLOOD_GROUPS =[
+    CHOICE_BLOOD_GROUPS = [
         ('A+','A+'),
         ('A-','A-'),
         ('B+','B+'),
@@ -14,23 +14,24 @@ class BloodRequest(models.Model):
         ('O+','O+'),
         ('O-','O-'),
     ]
-    user = models.ForeignKey(user, on_delete=models.CASCADE,related_name='blood_request')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='blood_request')
     name = models.CharField(max_length=100)
     blood_group = models.CharField(max_length=10, choices=CHOICE_BLOOD_GROUPS)
     phone = models.CharField(max_length=15)
-    email = models.EmailField()
     address = models.TextField()
     city = models.CharField(max_length=50)
-    state = models.CharField(max_length=50)
-    message = models.TextField()
+    description = models.TextField()
     date = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return self.user
+        return f"Blood request by {str(self.user.username) if self.user.username else str(self.user.email)}"
     
-class AcceptRequest(models.Model):
-    user = models.ForeignKey(user, on_delete=models.CASCADE, related_name='accept_request')
-    request = models.ForeignKey(BloodRequest, on_delete=models.CASCADE,related_name='accepted_by')
+class AcceptBloodRequest(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='accept_request')
+    request_accept = models.ForeignKey(BloodRequest, on_delete=models.CASCADE, related_name='accepted_by')
     date = models.DateTimeField(auto_now_add=True)
+
     def __str__(self):
-        return f"{self.user} accepted by {self.request}"
+        user_str = str(self.user.username) if self.user.username else str(self.user.email)
+        request_str = str(self.request_accept)
+        return f"{user_str} accepted {request_str}"
