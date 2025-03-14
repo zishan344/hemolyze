@@ -14,8 +14,6 @@ SECRET_KEY = 'django-insecure-b7%fkrf8py&oyr#!zy2#il1&edp&86k0dbcjxe*%nim%98)dcc
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = []
-
 
 # Application definition
 
@@ -129,6 +127,7 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 AUTH_USER_MODEL ='user.CustomUser'
+ALLOWED_HOSTS = ['.vercel.app', '127.0.0.1']
 STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
 # Default primary key field type
