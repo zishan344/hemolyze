@@ -2,4 +2,3 @@ __pycache__/
 .env
 db.sqlite3
 hemolyze_env
-/staticfiles/
