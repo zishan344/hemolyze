@@ -12,7 +12,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-b7%fkrf8py&oyr#!zy2#il1&edp&86k0dbcjxe*%nim%98)dcc'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = []
 
@@ -20,6 +20,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    "whitenoise.runserver_nostatic",
     'django.contrib.admin',
     'django.contrib.auth',
     'rest_framework',
@@ -38,6 +39,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -68,7 +70,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'hemolyze.wsgi.application'
+WSGI_APPLICATION = 'hemolyze.wsgi.app'
 
 
 # Database
@@ -127,6 +129,8 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 AUTH_USER_MODEL ='user.CustomUser'
+STATIC_ROOT = BASE_DIR / "staticfiles"
+STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
