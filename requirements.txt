@@ -10,6 +10,7 @@ django-filter==25.1
 djangorestframework==3.15.2
 djangorestframework_simplejwt==5.5.0
 djoser==2.3.1
+drf-nested-routers==0.94.1
 idna==3.10
 oauthlib==3.2.2
 psycopg2-binary==2.9.10
@@ -24,3 +25,4 @@ social-auth-core==4.5.6
 sqlparse==0.5.3
 tzdata==2025.1
 urllib3==2.3.0
+whitenoise==6.9.0
