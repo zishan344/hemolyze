@@ -6,12 +6,10 @@ from django.db.models import Q
 from blood_request.models import BloodRequest, AcceptBloodRequest
 from dashboard.serializers import DonarListSerializer
 from .serializers import DonationHistorySerializer
+from django_filters.rest_framework import DjangoFilterBackend
 # Create your views here.
-
-
 class DonationHistoryViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = DonationHistorySerializer
-
     def get_queryset(self):
         return AcceptBloodRequest.objects.filter(
             Q(user=self.request.user) | 
@@ -39,22 +37,14 @@ class DonationHistoryViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 
-class DonarListViewSet(viewsets.ModelViewSet):
-    """ViewSet for listing donors"""
+class DonarListViewSet(viewsets.ReadOnlyModelViewSet):
+    """ViewSet for listing available donors with their details"""
     serializer_class = DonarListSerializer
     permission_classes = [IsAuthenticated]
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['userdetails__blood_group']
 
     def get_queryset(self):
-        if self.request.user.is_authenticated:
-            # Get distinct users who have accepted blood requests
-            user_ids = AcceptBloodRequest.objects.values_list('user', flat=True).distinct()
-            return get_user_model().objects.filter(id__in(user_ids))
-        return get_user_model().objects.none()
-
-    def list(self, request, *args, **kwargs):
-        if not request.user.is_authenticated:
-            return Response(
-                {"error": "Authentication required"}, 
-                status=status.HTTP_401_UNAUTHORIZED
-            )
-        return super().list(request, *args, **kwargs)
+        return get_user_model().objects.filter(
+            userdetails__availability_status=True
+        ).select_related('userdetails').order_by('userdetails__last_donation_date')

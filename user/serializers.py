@@ -19,3 +19,7 @@ class UserDetailsSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserDetails
         fields = '__all__' 
+        extra_kwargs = {
+            'last_donation_date': {'read_only': True}
+        }
+        

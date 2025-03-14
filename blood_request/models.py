@@ -1,8 +1,10 @@
 from django.db import models
 from django.contrib.auth import get_user_model
-
-User = get_user_model()  # Use capital 'U' for class names
-
+from django.utils import timezone
+from django.core.exceptions import ValidationError, ObjectDoesNotExist
+from rest_framework.exceptions import ValidationError as DRFValidationError
+from user.models import UserDetails
+User = get_user_model()  
 class BloodRequest(models.Model):
     CHOICE_BLOOD_GROUPS = [
         ('A+','A+'),
@@ -44,10 +46,20 @@ class AcceptBloodRequest(models.Model):
     def save(self, *args, **kwargs):
         if not self.request_user_id:
             self.request_user = self.request_accept.user
-        
+            
+        try:
+            donor_details = UserDetails.objects.get(user=self.user)
+            if self.donation_status == self.DONATED:
+                donor_details.last_donation_date = timezone.now().date()
+                donor_details.save()
+        except ObjectDoesNotExist:
+            raise DRFValidationError({
+                "error": "Please complete your profile details before changing donation status.",
+                "status": 400
+            })
+            
         super().save(*args, **kwargs)
         
-        # Create or update ReceivedBlood entry with the donor from AcceptBloodRequest
         received_blood, created = ReceivedBlood.objects.get_or_create(
             user=self.request_user,
             donor=self.user,
@@ -58,7 +70,7 @@ class AcceptBloodRequest(models.Model):
             }
         )
         
-        # Update ReceivedBlood status based on AcceptBloodRequest status
+        # Update ReceivedBlood status
         if self.donation_status == self.DONATED:
             received_blood.received_status = ReceivedBlood.RECEIVED
         elif self.donation_status == self.CANCELED:

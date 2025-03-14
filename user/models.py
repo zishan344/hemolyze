@@ -32,10 +32,24 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         return str(self.username) if self.username else str(self.email)
 
 class UserDetails(models.Model):
+    CHOICE_BLOOD_GROUPS = [
+        ('A+','A+'),
+        ('A-','A-'),
+        ('B+','B+'),
+        ('B-','B-'),
+        ('AB+','AB+'),
+        ('AB-','AB-'),
+        ('O+','O+'),
+        ('O-','O-'),
+    ]
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='userdetails')
     name = models.CharField(max_length=150, blank=True)
     address = models.TextField(blank=True)
     age = models.IntegerField(blank=True, null=True)
+    blood_group = models.CharField(
+        max_length=3,
+        choices=CHOICE_BLOOD_GROUPS
+    )
     phone_number = models.CharField(max_length=15, blank=True, null=True)
     last_donation_date = models.DateField(blank=True, null=True)
     availability_status = models.BooleanField(default=False)

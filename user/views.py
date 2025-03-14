@@ -1,16 +1,16 @@
 from django.shortcuts import get_object_or_404
-from .serializers import UserDetailsSerializer
-from rest_framework import viewsets
+from django.contrib.auth import get_user_model
+from rest_framework import viewsets, status
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.exceptions import ValidationError
 from .models import UserDetails
+from .serializers import UserDetailsSerializer
 
-# Create your views here.
-
+User = get_user_model()
 class UserDetailsViewSet(viewsets.ModelViewSet):
     serializer_class = UserDetailsSerializer
     permission_classes = [IsAuthenticated]
-    lookup_field = 'user_id'
-    
+    # lookup_field = 'user_id'
     def get_queryset(self):
         if self.request.user.is_superuser:
             return UserDetails.objects.all()
@@ -26,5 +26,9 @@ class UserDetailsViewSet(viewsets.ModelViewSet):
         return obj
     
     def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
-
+        try:
+            existing_details = UserDetails.objects.get(user=self.request.user)
+            serializer.instance = existing_details
+            serializer.save()
+        except UserDetails.DoesNotExist:
+            serializer.save(user=self.request.user)

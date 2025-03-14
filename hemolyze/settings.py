@@ -33,6 +33,7 @@ INSTALLED_APPS = [
     'user',
     'dashboard',
     'blood_request',
+    'django_filters',
 ]
 
 MIDDLEWARE = [
@@ -135,9 +136,8 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
-    # 'DEFAULT_PERMISSION_CLASSES': [
-    #     'rest_framework.permissions.IsAuthenticated',
-    # ]
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
+    'EXCEPTION_HANDLER': 'blood_request.exceptions.custom_exception_handler'
 }
 SIMPLE_JWT ={
 'AUTH_HEADER_TYPES':('JWT',),
