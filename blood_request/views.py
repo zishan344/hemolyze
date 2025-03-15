@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated,IsAuthenticatedOrReadOnly,BasePermission
 from rest_framework.exceptions import ValidationError
@@ -25,17 +25,20 @@ class AcceptBloodRequestViewSet(viewsets.ModelViewSet):
     serializer_class = AcceptBloodRequestSerializer
     permission_classes = [IsAuthenticated]
 
+    def get_queryset(self):
+        blood_request_id = self.kwargs.get('blood_request_pk')
+        print("blood request", blood_request_id)
+        return AcceptBloodRequest.objects.filter(request_accept=blood_request_id)
+
     def perform_create(self, serializer):
-        request_accept = serializer.validated_data.get('request_accept')
-        request_user = request_accept.user
         accepted_user = self.request.user
-        print("request_user:- ",request_user, "accepted_user: ",accepted_user)
-        # print(request_accept.user , self.request.user)
-        # Check if user is trying to accept their own request
-        if request_accept.user == self.request.user:
+        blood_request_id = self.kwargs.get('blood_request_pk')
+        
+        blood_request_post = get_object_or_404(BloodRequest, pk=blood_request_id)
+        # print("accepted_user \n",accepted_user, "request_user",blood_request_post.user)
+        if accepted_user == blood_request_post.user:
             raise ValidationError({
                 "error": "You cannot accept your own blood request",
                 "status": 400
             })
-            
-        serializer.save(user=accepted_user)
+        serializer.save(user=accepted_user, request_accept=blood_request_post)
