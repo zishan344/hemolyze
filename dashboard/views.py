@@ -9,15 +9,35 @@ from .serializers import DonationHistorySerializer
 from django_filters.rest_framework import DjangoFilterBackend
 # Create your views here.
 class DonationHistoryViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    ViewSet for retrieving the donation and received history of the authenticated user.
+    """
     serializer_class = DonationHistorySerializer
     permission_classes=[IsAuthenticated]
     def get_queryset(self):
+        """
+        Retrieve the queryset of accepted blood requests where the authenticated user
+        is either the donor or the recipient.
+
+        Returns:
+            QuerySet: Filtered and ordered queryset of `AcceptBloodRequest` objects.
+        """
         return AcceptBloodRequest.objects.filter(
             Q(user=self.request.user) | 
             Q(request_user=self.request.user) 
         ).select_related('user', 'request_user', 'request_accept').order_by('-date')
     
     def list(self, request, *args, **kwargs):
+        """
+        List the donation and received history for the authenticated user.
+
+        Separates the records into two categories:
+        - Donations: Blood requests where the user is the donor.
+        - Received: Blood requests where the user is the recipient.
+
+        Returns:
+            Response: A JSON response containing two lists: `donations` and `received`.
+        """
         queryset = self.get_queryset()
         
         # Separate donations and received records
@@ -45,6 +65,17 @@ class DonarListViewSet(viewsets.ReadOnlyModelViewSet):
     filterset_fields = ['userdetails__blood_group']
 
     def get_queryset(self):
+        """
+        Retrieve the queryset of users who are available for donation.
+
+        Filters users based on their availability status and orders them by their
+        last donation date.
+
+        Add also custome filter query can filter with blood gruoup.
+        
+        Returns:
+            QuerySet: Filtered and ordered queryset of user objects.
+        """
         return get_user_model().objects.filter(
             userdetails__availability_status=True
         ).select_related('userdetails').order_by('userdetails__last_donation_date')
