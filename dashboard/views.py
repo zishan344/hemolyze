@@ -10,6 +10,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 # Create your views here.
 class DonationHistoryViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = DonationHistorySerializer
+    permission_classes=[IsAuthenticated]
     def get_queryset(self):
         return AcceptBloodRequest.objects.filter(
             Q(user=self.request.user) | 
@@ -40,7 +41,6 @@ class DonationHistoryViewSet(viewsets.ReadOnlyModelViewSet):
 class DonarListViewSet(viewsets.ReadOnlyModelViewSet):
     """ViewSet for listing available donors with their details"""
     serializer_class = DonarListSerializer
-    permission_classes = [IsAuthenticated]
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['userdetails__blood_group']
 
