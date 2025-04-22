@@ -13,17 +13,16 @@ SECRET_KEY = 'django-insecure-b7%fkrf8py&oyr#!zy2#il1&edp&86k0dbcjxe*%nim%98)dcc
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 ALLOWED_HOSTS = ['.vercel.app', '127.0.0.1',"localhost"]
-CORS_ALLOWED_ORIGINS = [
+""" CORS_ALLOWED_ORIGINS = [
     'http://localhost:5173',
-]
+] """
 # Application definition
-
+# "corsheaders",
 INSTALLED_APPS = [
     "whitenoise.runserver_nostatic",
     'django.contrib.admin',
     'django.contrib.auth',
     'rest_framework',
-     "corsheaders",
     'djoser',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -37,12 +36,12 @@ INSTALLED_APPS = [
     'blood_request',
     'django_filters',
 ]
-
+# "corsheaders.middleware.CorsMiddleware",
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     "whitenoise.middleware.WhiteNoiseMiddleware",
     'django.contrib.sessions.middleware.SessionMiddleware',
-    "corsheaders.middleware.CorsMiddleware",
+    
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
