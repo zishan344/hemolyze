@@ -1,55 +1,43 @@
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework import viewsets
 from django.shortcuts import get_object_or_404
 from django.contrib.auth import get_user_model
-from rest_framework import viewsets, status
-from rest_framework.permissions import IsAuthenticated
 from .models import UserDetails
 from .serializers import UserDetailsSerializer
 
 User = get_user_model()
+
+class AllUserDetailsViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    API endpoint for administrators to view all user details.
+    This view is restricted to admin users only.
+    """
+    queryset = UserDetails.objects.all()
+    serializer_class = UserDetailsSerializer
+    permission_classes = [IsAdminUser]
+
 class UserDetailsViewSet(viewsets.ModelViewSet):
     """
-    API endpoint to manage user details.
+    API endpoint to manage individual user details.
+    Users can only view and modify their own details.
     """
     serializer_class = UserDetailsSerializer
     permission_classes = [IsAuthenticated]
     def get_queryset(self):
         """
-        Get the list of user details.
-
-        - Superusers can view all user details.
-        - Regular users can only view their own details.
-
-        Returns:
-            QuerySet: A filtered queryset of `UserDetails` objects.
+        Get only the current user's details
         """
-        if self.request.user.is_superuser:
-            return UserDetails.objects.all()
         return UserDetails.objects.filter(user=self.request.user)
     
     def get_object(self):
         """
-        Retrieve a specific user detail object.
-
-        - Superusers can access any user detail.
-        - Regular users can only access their own details.
-
-        Returns:
-            UserDetails: The requested user detail object.
+        Retrieve the user's own detail object
         """
-        user_id = self.kwargs.get('pk')
-        queryset = UserDetails.objects.all()
-        if not self.request.user.is_superuser:
-            queryset = queryset.filter(user=self.request.user)
-        obj = get_object_or_404(queryset, user_id=user_id)
-        self.check_object_permissions(self.request, obj)
-        return obj
+        return get_object_or_404(UserDetails, user=self.request.user)
     
     def perform_create(self, serializer):
-        
-        """ Create or update user details for the authenticated user.
-
-        - If user details already exist, they are updated.
-        - Otherwise, new user details are created.
+        """
+        Create or update user details for the authenticated user.
         """
         try:
             existing_details = UserDetails.objects.get(user=self.request.user)
