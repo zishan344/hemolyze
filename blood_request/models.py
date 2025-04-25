@@ -20,10 +20,14 @@ class BloodRequest(models.Model):
     name = models.CharField(max_length=100)
     blood_group = models.CharField(max_length=10, choices=CHOICE_BLOOD_GROUPS)
     phone = models.CharField(max_length=15)
-    address = models.TextField()
-    city = models.CharField(max_length=50)
+    hospital_address = models.TextField()
+    hospital_name = models.CharField(max_length=50)
     description = models.TextField()
-    date = models.DateTimeField(auto_now_add=True)
+    date = models.DateField()
+    # should be create data and update date field
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
 
     def __str__(self):
         return f"Blood request by {str(self.user.username) if self.user.username else str(self.user.email)}"
