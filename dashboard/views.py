@@ -5,6 +5,7 @@ from django.contrib.auth import get_user_model
 from django.db.models import Q
 from blood_request.models import BloodRequest, AcceptBloodRequest
 from dashboard.serializers import DonarListSerializer
+from user.models import UserDetails
 from .serializers import DonationHistorySerializer
 from django_filters.rest_framework import DjangoFilterBackend
 # Create your views here.
@@ -66,20 +67,18 @@ class DonarListViewSet(viewsets.ReadOnlyModelViewSet):
     """ViewSet for listing available donors with their details"""
     serializer_class = DonarListSerializer
     filter_backends = [DjangoFilterBackend]
-    filterset_fields = ['userdetails__blood_group']
+    filterset_fields = ['blood_group']
 
     def get_queryset(self):
         """
-        Retrieve the queryset of users who are available for donation.
+        Retrieve the queryset of user details who are available for donation.
 
-        Filters users based on their availability status and orders them by their
+        Filters user details based on their availability status and orders them by their
         last donation date.
 
-        Add also custome filter query can filter with blood gruoup.
-        
         Returns:
-            QuerySet: Filtered and ordered queryset of user objects.
+            QuerySet: Filtered and ordered queryset of UserDetails objects.
         """
-        return get_user_model().objects.filter(
-            userdetails__availability_status=True
-        ).select_related('userdetails').order_by('userdetails__last_donation_date')
+        return UserDetails.objects.filter(
+            availability_status=True
+        ).order_by('last_donation_date')

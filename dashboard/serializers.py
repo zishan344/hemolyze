@@ -1,19 +1,16 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from blood_request.models import AcceptBloodRequest, BloodRequest
+from user.models import UserDetails
 
 
 class DonarListSerializer(serializers.ModelSerializer):
-    blood_group = serializers.CharField(source='userdetails.blood_group')
-    last_donation_date = serializers.DateField(source='userdetails.last_donation_date')
-    name = serializers.CharField(source='userdetails.name')
-    address = serializers.CharField(source='userdetails.address')
-    availability_status = serializers.BooleanField(source='userdetails.availability_status')
-    userDetailId = serializers.IntegerField(source='userdetails.id')
-    phone_number = serializers.CharField(source='userdetails.phone_number')
     class Meta:
-        model = get_user_model()
-        fields = ['id','userDetailId', 'name', 'address','phone_number','availability_status', 'blood_group', 'last_donation_date']
+        model = UserDetails
+        fields = [
+            'id','user', 'name', 'address', 'phone_number', 'age', 
+            'availability_status', 'blood_group', 'last_donation_date'
+        ]
 
 class BloodRequestDetailSerializer(serializers.ModelSerializer):
     class Meta:
