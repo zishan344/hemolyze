@@ -16,9 +16,17 @@ class BloodRequest(models.Model):
         ('O+','O+'),
         ('O-','O-'),
     ]
+    # urgency_level: "normal" | "urgent" | "critical";
+    CHOICE_URGENCY_LEVEL = [
+        ('normal', 'Normal'),
+        ('urgent', 'Urgent'),
+        ('critical', 'Critical'),
+    ]
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='blood_request')
     name = models.CharField(max_length=100)
     blood_group = models.CharField(max_length=10, choices=CHOICE_BLOOD_GROUPS)
+    required_units = models.IntegerField()
+    urgency_level = models.CharField(max_length=10, choices=CHOICE_URGENCY_LEVEL, default='normal')
     phone = models.CharField(max_length=15)
     hospital_address = models.TextField()
     hospital_name = models.CharField(max_length=50)
@@ -27,9 +35,10 @@ class BloodRequest(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+
     def __str__(self):
         return f"Blood request by {str(self.user.username) if self.user.username else str(self.user.email)}"
-    
+
 class AcceptBloodRequest(models.Model):
     PENDING = 'pending'
     DONATED = 'donated'
