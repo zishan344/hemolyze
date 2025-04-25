@@ -6,9 +6,14 @@ from blood_request.models import AcceptBloodRequest, BloodRequest
 class DonarListSerializer(serializers.ModelSerializer):
     blood_group = serializers.CharField(source='userdetails.blood_group')
     last_donation_date = serializers.DateField(source='userdetails.last_donation_date')
+    name = serializers.CharField(source='userdetails.name')
+    address = serializers.CharField(source='userdetails.address')
+    availability_status = serializers.BooleanField(source='userdetails.availability_status')
+    userDetailId = serializers.IntegerField(source='userdetails.id')
+    
     class Meta:
         model = get_user_model()
-        fields = ['id', 'username', 'blood_group','last_donation_date']
+        fields = ['id','userDetailId', 'name', 'address', 'availability_status', 'blood_group', 'last_donation_date']
 
 class BloodRequestDetailSerializer(serializers.ModelSerializer):
     class Meta:

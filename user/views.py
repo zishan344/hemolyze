@@ -27,12 +27,20 @@ class UserDetailsViewSet(viewsets.ModelViewSet):
         """
         Get only the current user's details
         """
+        # Detect if this is a swagger schema generation request
+        if getattr(self, 'swagger_fake_view', False):
+            # Return empty queryset for schema generation
+            return UserDetails.objects.none()
         return UserDetails.objects.filter(user=self.request.user)
     
     def get_object(self):
         """
         Retrieve the user's own detail object
         """
+        # Detect if this is a swagger schema generation request
+        if getattr(self, 'swagger_fake_view', False):
+            # Return None for schema generation
+            return None
         return get_object_or_404(UserDetails, user=self.request.user)
     
     def perform_create(self, serializer):
