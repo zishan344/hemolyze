@@ -24,10 +24,8 @@ class BloodRequest(models.Model):
     hospital_name = models.CharField(max_length=50)
     description = models.TextField()
     date = models.DateField()
-    # should be create data and update date field
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-
 
     def __str__(self):
         return f"Blood request by {str(self.user.username) if self.user.username else str(self.user.email)}"

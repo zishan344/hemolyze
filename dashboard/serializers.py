@@ -15,7 +15,8 @@ class DonarListSerializer(serializers.ModelSerializer):
 class BloodRequestDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = BloodRequest
-        fields = ['id', 'blood_group', 'city', 'date']
+        fields = ['id', 'blood_group', 'hospital_name', 'date']
+
 
 class DonationHistorySerializer(serializers.ModelSerializer):
     blood_request = BloodRequestDetailSerializer(source='request_accept')
