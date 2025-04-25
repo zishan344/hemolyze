@@ -39,7 +39,7 @@ class BloodRequest(models.Model):
     hospital_name = models.CharField(max_length=50)
     description = models.TextField()
     date = models.DateField()
-    status =   status = models.CharField(max_length=10, choices=REQUEST_STATUS, default='pending')
+    status = models.CharField(max_length=10, choices=REQUEST_STATUS, default='pending')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
