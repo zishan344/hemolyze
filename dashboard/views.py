@@ -22,6 +22,10 @@ class DonationHistoryViewSet(viewsets.ReadOnlyModelViewSet):
         Returns:
             QuerySet: Filtered and ordered queryset of `AcceptBloodRequest` objects.
         """
+        # Check if this is a schema generation request
+        if getattr(self, 'swagger_fake_view', False):
+            return AcceptBloodRequest.objects.none()
+
         return AcceptBloodRequest.objects.filter(
             Q(user=self.request.user) | 
             Q(request_user=self.request.user) 

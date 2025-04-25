@@ -10,10 +10,10 @@ class DonarListSerializer(serializers.ModelSerializer):
     address = serializers.CharField(source='userdetails.address')
     availability_status = serializers.BooleanField(source='userdetails.availability_status')
     userDetailId = serializers.IntegerField(source='userdetails.id')
-    
+    phone_number = serializers.CharField(source='userdetails.phone_number')
     class Meta:
         model = get_user_model()
-        fields = ['id','userDetailId', 'name', 'address', 'availability_status', 'blood_group', 'last_donation_date']
+        fields = ['id','userDetailId', 'name', 'address','phone_number','availability_status', 'blood_group', 'last_donation_date']
 
 class BloodRequestDetailSerializer(serializers.ModelSerializer):
     class Meta:
