@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth import get_user_model
 from django.utils import timezone
-from django.core.exceptions import ValidationError, ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.exceptions import ValidationError as DRFValidationError
 from user.models import UserDetails
 User = get_user_model()  
@@ -23,7 +23,7 @@ class BloodRequest(models.Model):
         ('critical', 'Critical'),
     ]
     # RequestStatus "pending" | "accepted" | "completed" | "cancelled"
-    REQUEST_STATUS =[
+    REQUEST_STATUS = [
         ("pending", 'Pending'),
         ("accepted", 'Accepted'),
         ("completed", 'completed'),
