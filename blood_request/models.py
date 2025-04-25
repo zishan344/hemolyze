@@ -22,6 +22,13 @@ class BloodRequest(models.Model):
         ('urgent', 'Urgent'),
         ('critical', 'Critical'),
     ]
+    # RequestStatus "pending" | "accepted" | "completed" | "cancelled"
+    REQUEST_STATUS =[
+        ("pending", 'Pending'),
+        ("accepted", 'Accepted'),
+        ("completed", 'completed'),
+        ("cancelled", 'cancelled'),
+    ]
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='blood_request')
     name = models.CharField(max_length=100)
     blood_group = models.CharField(max_length=10, choices=CHOICE_BLOOD_GROUPS)
@@ -32,6 +39,7 @@ class BloodRequest(models.Model):
     hospital_name = models.CharField(max_length=50)
     description = models.TextField()
     date = models.DateField()
+    status =   status = models.CharField(max_length=10, choices=REQUEST_STATUS, default='pending')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
