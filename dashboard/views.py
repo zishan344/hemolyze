@@ -1,12 +1,13 @@
 from sslcommerz_lib import SSLCOMMERZ
-from rest_framework import viewsets, status
+from rest_framework import viewsets, status, permissions
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from django.contrib.auth import get_user_model
 from django.db.models import Q
 from blood_request.models import BloodRequest, AcceptBloodRequest
-from dashboard.serializers import DonarListSerializer
+from dashboard.serializers import DonarListSerializer, DonatedFundSerializer
 from user.models import UserDetails
+from .models import DonatedFund
 from .serializers import DonationHistorySerializer
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.decorators import api_view
@@ -72,8 +73,6 @@ class DonationHistoryViewSet(viewsets.ReadOnlyModelViewSet):
             'received': received
         })
 
-
-
 class DonarListViewSet(viewsets.ReadOnlyModelViewSet):
     """ViewSet for listing available donors with their details"""
     serializer_class = DonarListSerializer
@@ -105,7 +104,7 @@ def initiate_payment(request):
     post_body['total_amount'] = amount
     post_body['currency'] = "BDT"
     post_body['payment_type_name'] = "donation"
-    post_body['tran_id'] = f"txn_{user.id,str(uuid.uuid4())} "
+    post_body['tran_id'] = f"txn_{user.id}_{str(uuid.uuid4())} "
     post_body['success_url'] = f"{main_settings.BACKEND_URL}/api/v1/payment/success/"
     post_body['fail_url'] = f"{main_settings.BACKEND_URL}/api/v1/payment/fail/"
     post_body['cancel_url'] = f"{main_settings.BACKEND_URL}/api/v1/payment/cancel/"
@@ -133,10 +132,30 @@ def initiate_payment(request):
 
 @api_view(['POST'])
 def payment_success(request):
-    """  order_id = request.data.get('tran_id').split('_')[1]
-    order = Order.objects.get(id=order_id)
-    order.status = 'Ready To Ship'
-    order.save() """
+    """
+    Handle successful payment and create donation record
+    """
+    transaction_id = request.data.get('tran_id')
+    amount = request.data.get('amount')
+    # email = request.data.get('cus_email')
+    userid = int(transaction_id.split("_")[1])
+
+
+    
+    # Find the user by email
+    User = get_user_model()
+    try:
+        user = User.objects.get(id=userid)
+        # Create donation record
+        DonatedFund.objects.create(
+            user=user,
+            amount=amount,
+            transaction_id=transaction_id
+        )
+    except User.DoesNotExist:
+        # Log error - user not found
+        pass
+        
     return HttpResponseRedirect(f"{main_settings.FRONTEND_URL}/payment-success")
     
 @api_view(['POST'])
@@ -146,4 +165,32 @@ def payment_cancel(request):
 @api_view(['POST'])
 def payment_fail(request):
     return HttpResponseRedirect(f"{main_settings.FRONTEND_URL}/dashboard/orders/")
+
+class DonatedFundViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for handling donation funds.
+    - Regular users can only view their own donations
+    - Admin users can view all donations
+    """
+    serializer_class = DonatedFundSerializer
+    permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        """
+        Returns donations filtered by user permissions:
+        - Admin users see all donations
+        - Regular users see only their own donations
+        """
+        if getattr(self, 'swagger_fake_view', False):
+            return DonatedFund.objects.none()
+            
+        user = self.request.user
+        if user.is_staff:  # Admin can see all donations
+            return DonatedFund.objects.all()
+        # Regular users can only see their own donations
+        return DonatedFund.objects.filter(user=user)
+    
+    def perform_create(self, serializer):
+        """Automatically set the user to the current authenticated user"""
+        serializer.save(user=self.request.user)
 

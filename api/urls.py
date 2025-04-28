@@ -3,7 +3,15 @@ from rest_framework.routers import DefaultRouter
 from rest_framework_nested import routers
 from user.views import UserDetailsViewSet,AllUserDetailsViewSet
 from blood_request.views import BloodRequestViewSet, AcceptBloodRequestViewSet, MyDonationsViewSet
-from dashboard.views import DonarListViewSet, DonationHistoryViewSet,initiate_payment, payment_success, payment_fail, payment_cancel
+from dashboard.views import (
+    DonarListViewSet, 
+    DonationHistoryViewSet, 
+    DonatedFundViewSet,
+    initiate_payment, 
+    payment_success, 
+    payment_fail, 
+    payment_cancel
+)
 
 router = DefaultRouter()
 
@@ -11,7 +19,6 @@ router.register('user-details', UserDetailsViewSet, basename='user_details')
 router.register("all-user-details", AllUserDetailsViewSet, basename="all_user_details")
 router.register('blood-request', BloodRequestViewSet, basename='blood-request')
 router.register('my-donations', MyDonationsViewSet, basename='my-donations')
-
 blood_router = routers.NestedDefaultRouter(router, 'blood-request', lookup='blood_request')
 blood_router.register(
     'accept-blood-request',
@@ -21,6 +28,8 @@ blood_router.register(
 
 router.register('donar-list', DonarListViewSet, basename='donar-list')
 router.register('donation-history', DonationHistoryViewSet, basename='donation-history')
+router.register('donated-fund', DonatedFundViewSet, basename='donated-fund')
+
 urlpatterns = [
     path('auth/', include('djoser.urls')),
     path('auth/', include('djoser.urls.jwt')),

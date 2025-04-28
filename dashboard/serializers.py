@@ -2,6 +2,7 @@ from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from blood_request.models import AcceptBloodRequest, BloodRequest
 from user.models import UserDetails
+from .models import DonatedFund
 
 
 class DonarListSerializer(serializers.ModelSerializer):
@@ -45,3 +46,15 @@ class DonationHistorySerializer(serializers.ModelSerializer):
             'date',
             'blood_request'
         ]
+
+
+class DonatedFundSerializer(serializers.ModelSerializer):
+    username = serializers.SerializerMethodField()
+    
+    def get_username(self, obj):
+        return obj.user.username if hasattr(obj.user, 'username') else obj.user.email
+    
+    class Meta:
+        model = DonatedFund
+        fields = ['id', 'username', 'amount', 'transaction_id', 'created_date']
+        read_only_fields = ['id', 'user', 'created_date']
