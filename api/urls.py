@@ -3,7 +3,7 @@ from rest_framework.routers import DefaultRouter
 from rest_framework_nested import routers
 from user.views import UserDetailsViewSet,AllUserDetailsViewSet
 from blood_request.views import BloodRequestViewSet, AcceptBloodRequestViewSet, MyDonationsViewSet
-from dashboard.views import DonarListViewSet, DonationHistoryViewSet
+from dashboard.views import DonarListViewSet, DonationHistoryViewSet,initiate_payment, payment_success, payment_fail, payment_cancel
 
 router = DefaultRouter()
 
@@ -26,5 +26,10 @@ urlpatterns = [
     path('auth/', include('djoser.urls.jwt')),
     path('', include(router.urls)),
     path('', include(blood_router.urls)),
+    path('payment/initiate/', initiate_payment, name='payment-initiate'),
+    path('payment/success/', payment_success, name='payment-success'),
+    path('payment/fail/', payment_fail, name='payment-fail'),
+    path('payment/cancel/', payment_cancel, name='payment-cancel'),
+
     # path('', include(users_router.urls)),
 ]
