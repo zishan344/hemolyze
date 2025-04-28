@@ -38,7 +38,7 @@ class DonationHistoryViewSet(viewsets.ReadOnlyModelViewSet):
 
         Separates the records into two categories:
         - Donations: Blood requests where the user is the donor.
-        - Received: Blood requests where the user is the recipient.
+        - Received: Blood requests where the user is the recipient, excluding canceled donations.
 
         Returns:
             Response: A JSON response containing two lists: `donations` and `received`.
@@ -51,8 +51,13 @@ class DonationHistoryViewSet(viewsets.ReadOnlyModelViewSet):
             many=True
         ).data
         
+        # Filter received records to exclude those with 'canceled' donation status
         received = self.serializer_class(
-            queryset.filter(request_accept=request.user), 
+            queryset.filter(
+                request_accept=request.user
+            ).exclude(
+                donation_status='canceled'
+            ), 
             many=True
         ).data
 
