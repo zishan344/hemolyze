@@ -15,13 +15,25 @@ class DonarListSerializer(serializers.ModelSerializer):
 class BloodRequestDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = BloodRequest
-        fields = ['id', 'blood_group', 'hospital_name', 'date']
+        fields = ['id', 'blood_group', 'hospital_name','status', 'date']
 
 
 class DonationHistorySerializer(serializers.ModelSerializer):
-    blood_request = BloodRequestDetailSerializer(source='request_accept')
-    recipient_name = serializers.CharField(source='request_user.username')
-    donor_name = serializers.CharField(source='user.username')
+    blood_request = BloodRequestDetailSerializer(source='request_user')
+    recipient_name = serializers.SerializerMethodField()
+    donor_name = serializers.SerializerMethodField()
+    
+    def get_recipient_name(self, obj):
+        # Get recipient name safely
+        if hasattr(obj.request_accept, 'username'):
+            return obj.request_accept.username
+        return obj.request_accept.email if obj.request_accept else "Unknown"
+    
+    def get_donor_name(self, obj):
+        # Get donor name safely
+        if hasattr(obj.user, 'userdetails') and hasattr(obj.user.userdetails, 'name'):
+            return obj.user.userdetails.name
+        return obj.user.username or obj.user.email
     
     class Meta:
         model = AcceptBloodRequest

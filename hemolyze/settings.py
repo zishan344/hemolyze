@@ -11,8 +11,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-b7%fkrf8py&oyr#!zy2#il1&edp&86k0dbcjxe*%nim%98)dcc'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
-ALLOWED_HOSTS = ['.vercel.app', '127.0.0.1',"localhost"]
+DEBUG = True
+ALLOWED_HOSTS = ['.vercel.app', '127.0.0.1', "localhost"]
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:5173',
 ]
@@ -150,6 +150,7 @@ REST_FRAMEWORK = {
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
+    'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema',
     'EXCEPTION_HANDLER': 'blood_request.exceptions.custom_exception_handler'
 }
 SIMPLE_JWT ={

@@ -29,7 +29,7 @@ class DonationHistoryViewSet(viewsets.ReadOnlyModelViewSet):
 
         return AcceptBloodRequest.objects.filter(
             Q(user=self.request.user) | 
-            Q(request_user=self.request.user) 
+            Q(request_accept=self.request.user) 
         ).select_related('user', 'request_user', 'request_accept').order_by('-date')
     
     def list(self, request, *args, **kwargs):
@@ -52,7 +52,7 @@ class DonationHistoryViewSet(viewsets.ReadOnlyModelViewSet):
         ).data
         
         received = self.serializer_class(
-            queryset.filter(request_user=request.user), 
+            queryset.filter(request_accept=request.user), 
             many=True
         ).data
 
