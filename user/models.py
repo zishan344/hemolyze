@@ -43,16 +43,16 @@ class UserDetails(models.Model):
         ('O-','O-'),
     ]
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='userdetails')
-    name = models.CharField(max_length=150, blank=True)
-    address = models.TextField(blank=True)
-    age = models.IntegerField(blank=True, null=True)
+    name = models.CharField(max_length=150)   
+    address = models.TextField()   
+    age = models.IntegerField()   
     blood_group = models.CharField(
         max_length=3,
         choices=CHOICE_BLOOD_GROUPS
     )
-    phone_number = models.CharField(max_length=15, blank=True, null=True)
-    last_donation_date = models.DateField(blank=True, null=True)
-    availability_status = models.BooleanField(default=False)
+    phone_number = models.CharField(max_length=15)   
+    last_donation_date = models.DateField(blank=True, null=True)  
+    availability_status = models.BooleanField(default=False)   
     
     def __str__(self) -> str:
         user_identifier = str(self.user.username) if self.user.username else str(self.user.email)

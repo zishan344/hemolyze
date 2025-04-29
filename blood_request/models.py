@@ -93,15 +93,25 @@ class AcceptBloodRequest(models.Model):
             except AcceptBloodRequest.DoesNotExist:
                 pass
             
-        # Update donor's last donation date if donation is completed
+        # Get user details and check availability status
         try:
             donor_details = UserDetails.objects.get(user=self.user)
+            
+            # Check availability status only for new records
+            if is_new and not donor_details.availability_status:
+                raise DRFValidationError({
+                    "error": "Your availability status is set to inactive. Please update your profile and set your availability status to active before accepting blood requests.",
+                    "status": 400
+                })
+                
+            # Update donor's last donation date if donation is completed
             if self.donation_status == self.DONATED:
                 donor_details.last_donation_date = timezone.now().date()
                 donor_details.save()
+                
         except ObjectDoesNotExist:
             raise DRFValidationError({
-                "error": "Please complete your profile details before changing donation status.",
+                "error": "Please complete your user profile with all required details before accepting blood requests.",
                 "status": 400
             })
             
