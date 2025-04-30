@@ -141,6 +141,7 @@ class StatisticsViewSet(viewsets.ViewSet):
     - Total Blood Donations
     - Total Donation Pending Requests
     - Total Fund Amount
+    - Most recent activity dates for each category
     """
     permission_classes = [IsAuthenticated, IsAdminUser]
 
@@ -169,12 +170,39 @@ class StatisticsViewSet(viewsets.ViewSet):
         # Format as decimal with 2 decimal places
         total_fund = round(float(total_fund), 2)
         
-        return Response({
+        # Get most recent date for each activity type
+        response_data = {
             'total_users': total_users,
             'total_blood_donations': total_blood_donations,
             'total_pending_requests': total_pending_requests,
             'total_fund': total_fund,
-        })
+        }
+        
+        # Most recent user registration
+        recent_user = User.objects.order_by('-date_joined').first()
+        if recent_user:
+            response_data['New_user'] = recent_user.date_joined
+        
+        # Most recent blood donation
+        recent_donation = AcceptBloodRequest.objects.filter(
+            donation_status='donated'
+        ).order_by('-date').first()
+        if recent_donation:
+            response_data['Blood_donation_completed'] = recent_donation.date
+        
+        # Most recent fund donation
+        recent_fund = DonatedFund.objects.order_by('-created_date').first()
+        if recent_fund:
+            response_data['Fund_received'] = recent_fund.created_date
+        
+        # Most recent emergency blood request
+        recent_emergency = BloodRequest.objects.filter(
+            urgency_level__in=['urgent', 'critical']
+        ).order_by('-created_at').first()
+        if recent_emergency:
+            response_data['Emergency_blood_request'] = recent_emergency.created_at
+        
+        return Response(response_data)
 
 
 # patch the user role
@@ -188,7 +216,7 @@ def patch_user_role(request, user_id):
         user = User.objects.get(id=user_id)
         role = request.data.get('role')
         if role in ['admin', 'user']:
-            # Remove user from all existing role groups
+            # Remove all existing role groups
             user.groups.clear()
             
             # Get or create the appropriate group
