@@ -7,6 +7,7 @@ from dashboard.views import (
     DonarListViewSet, 
     DonationHistoryViewSet, 
     DonatedFundViewSet,
+    AllBloodDonationHistory,
     initiate_payment, 
     payment_success, 
     payment_fail, 
@@ -29,6 +30,7 @@ blood_router.register(
 router.register('donar-list', DonarListViewSet, basename='donar-list')
 router.register('donation-history', DonationHistoryViewSet, basename='donation-history')
 router.register('donated-fund', DonatedFundViewSet, basename='donated-fund')
+router.register('all-blood-donation-history', AllBloodDonationHistory, basename='all-donation-blood-history')
 
 urlpatterns = [
     path('auth/', include('djoser.urls')),

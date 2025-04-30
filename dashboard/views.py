@@ -1,6 +1,6 @@
 from sslcommerz_lib import SSLCOMMERZ
 from rest_framework import viewsets, status, permissions
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated,IsAdminUser
 from rest_framework.response import Response
 from django.contrib.auth import get_user_model
 from django.db.models import Q
@@ -38,7 +38,7 @@ class DonationHistoryViewSet(viewsets.ReadOnlyModelViewSet):
             Q(user=self.request.user) | 
             Q(request_accept=self.request.user) 
         ).select_related('user', 'request_user', 'request_accept').order_by('-date')
-    
+
     def list(self, request, *args, **kwargs):
         """
         List the donation and received history for the authenticated user.
@@ -72,6 +72,45 @@ class DonationHistoryViewSet(viewsets.ReadOnlyModelViewSet):
             'donations': donations,
             'received': received
         })
+
+class AllBloodDonationHistory(viewsets.ReadOnlyModelViewSet):
+    """
+    ViewSet for retrieving the donation and received history of the authenticated user.
+    """
+    serializer_class = DonationHistorySerializer
+    permission_classes=[IsAdminUser]
+    def get_queryset(self):
+        """
+        Retrieve the queryset of accepted blood requests where the authenticated user
+        is either the donor or the recipient.
+
+        Returns:
+            QuerySet: Filtered and ordered queryset of `AcceptBloodRequest` objects.
+        """
+        # Check if this is a schema generation request
+        if getattr(self, 'swagger_fake_view', False):
+            return AcceptBloodRequest.objects.none()
+
+        return AcceptBloodRequest.objects.select_related('user', 'request_user', 'request_accept').order_by('-date')
+
+    def list(self, request, *args, **kwargs):
+        """
+        List the donation and received history for the admin user.
+        Separates the records into two categories:
+        - Donations: Blood requests where the user is the donor.
+        
+
+        Returns:
+            Response: A JSON response containing 1 list: `donations`.
+        """
+        queryset = self.get_queryset()
+        
+        # Separate donations and received records
+        donations = self.serializer_class(
+            queryset, 
+            many=True
+        ).data
+        return Response(donations)
 
 class DonarListViewSet(viewsets.ReadOnlyModelViewSet):
     """ViewSet for listing available donors with their details"""
