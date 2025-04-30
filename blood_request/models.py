@@ -100,7 +100,7 @@ class AcceptBloodRequest(models.Model):
             # Check availability status only for new records
             if is_new and not donor_details.availability_status:
                 raise DRFValidationError({
-                    "error": "Your availability status is set to inactive. Please update your profile and set your availability status to active before accepting blood requests.",
+                    "error": "You cannot accept blood requests while your availability status is inactive",
                     "status": 400
                 })
                 
@@ -111,7 +111,7 @@ class AcceptBloodRequest(models.Model):
                 
         except ObjectDoesNotExist:
             raise DRFValidationError({
-                "error": "Please complete your user profile with all required details before accepting blood requests.",
+                "error": "Please complete your profile details before accepting",
                 "status": 400
             })
             
