@@ -1,8 +1,9 @@
 from sslcommerz_lib import SSLCOMMERZ
-from rest_framework import viewsets, status, permissions
-from rest_framework.permissions import IsAuthenticated,IsAdminUser
+from rest_framework import viewsets, status
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group
 from django.db.models import Q
 from blood_request.models import BloodRequest, AcceptBloodRequest
 from dashboard.serializers import DonarListSerializer, DonatedFundSerializer
@@ -176,6 +177,41 @@ class StatisticsViewSet(viewsets.ViewSet):
         })
 
 
+# patch the user role
+@api_view(['PATCH'])
+def patch_user_role(request, user_id):
+    """
+    Update the role of a user to 'admin' or 'user' based on the request data.
+    """
+    User = get_user_model()
+    try:
+        user = User.objects.get(id=user_id)
+        role = request.data.get('role')
+        if role in ['admin', 'user']:
+            # Remove user from all existing role groups
+            user.groups.clear()
+            
+            # Get or create the appropriate group
+            group, _ = Group.objects.get_or_create(name=role)
+            
+            # Add user to the new role group
+            user.groups.add(group)
+            
+            # If role is admin, make the user staff as well
+            if role == 'admin':
+                user.is_staff = True
+            else:
+                user.is_staff = False
+            user.save()
+            
+            return Response({"message": "User role updated successfully"}, status=status.HTTP_200_OK)
+        else:
+            return Response({"error": "Invalid role"}, status=status.HTTP_400_BAD_REQUEST)
+    except User.DoesNotExist:
+        return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
+
+
 @api_view(['POST'])
 def initiate_payment(request):
     user = request.user
@@ -212,6 +248,7 @@ def initiate_payment(request):
         })
     return Response({"error":"Payment initiation failed"}, status=status.HTTP_400_BAD_REQUEST)
 
+
 @api_view(['POST'])
 def payment_success(request):
     """
@@ -240,6 +277,7 @@ def payment_success(request):
         
     return HttpResponseRedirect(f"{main_settings.FRONTEND_URL}/payment-success")
     
+
 @api_view(['POST'])
 def payment_cancel(request):
     return HttpResponseRedirect(f"{main_settings.FRONTEND_URL}/dashboard/")
