@@ -133,6 +133,49 @@ class DonarListViewSet(viewsets.ReadOnlyModelViewSet):
         ).order_by('last_donation_date')
 
 
+class StatisticsViewSet(viewsets.ViewSet):
+    """
+    ViewSet for retrieving system-wide statistics:
+    - Total Users
+    - Total Blood Donations
+    - Total Donation Pending Requests
+    - Total Fund Amount
+    """
+    permission_classes = [IsAuthenticated, IsAdminUser]
+
+    def list(self, request):
+        """
+        Returns a summary of key statistics for the admin dashboard
+        """
+        # Get the User model
+        User = get_user_model()
+        
+        # Calculate statistics
+        total_users = User.objects.count()
+        total_blood_donations = AcceptBloodRequest.objects.filter(
+            donation_status='donated'
+        ).count()
+        total_pending_requests = BloodRequest.objects.filter(
+            status='pending'
+        ).count()
+        
+        # Calculate total fund by summing all donation amounts
+        from django.db.models import Sum
+        total_fund = DonatedFund.objects.aggregate(
+            total=Sum('amount')
+        )['total'] or 0
+        
+        # Format as decimal with 2 decimal places
+        total_fund = round(float(total_fund), 2)
+        
+        return Response({
+            'total_users': total_users,
+            'total_blood_donations': total_blood_donations,
+            'total_pending_requests': total_pending_requests,
+            'total_fund': total_fund,
+        })
+
+
 @api_view(['POST'])
 def initiate_payment(request):
     user = request.user
